@@ -1,6 +1,127 @@
 #!/usr/bin/env python
 
+import os, glob, wx, traceback
+import wx.xrc as xrc
+
 import magnetism_core as magnetism
 import magnetism_core.scriptools as scriptools
 
-print "Main program placeholder"
+""" TODO
+* Add new / delete / order code
+* create home dir if not exist
+#uuid.uuid4()
+"""
+
+
+
+FILE_EXTENSION = "scriptul"
+MAGNETISM_HOME_DIR = ".magnetism"
+
+magnetismHomePath = os.path.join( os.path.expanduser("~"), MAGNETISM_HOME_DIR )
+scriptsPath = os.path.join(magnetismHomePath, "scripts"
+
+
+def loadScripts(path):
+	scripts = []
+
+	errors = []
+	for f in glob.glob( os.path.join(path, "*.%s" % FILE_EXTENSION) ):
+		try:
+			s = magnetism.Script(filename=f)
+		except magnetism.ScriptulFileError:
+			errors.append(f)
+		else:
+			scripts.append(s)
+
+	if len(errors):
+		msg = "Errors were encountered loading the following files:\n\n" + "\n".join(errors)
+		dialogMessage(title="Scriptul", message=msg)
+
+	return scripts
+
+
+class FrameMain(wx.Frame):
+	def __init__(self, parent, id, title):
+		wx.Frame.__init__(self, parent, id, title)
+
+		res = xrc.XmlResource('magnetism.xrc')
+		self.panel = res.LoadPanel(self, 'PanelMain')
+
+		self.listCtrlMain = xrc.XRCCTRL(self.panel, 'listCtrlMain')
+
+		self.listCtrlMain.Bind(wx.EVT_SIZE, self.OnSize)
+		self.listCtrlMain.Bind(wx.EVT_LIST_ITEM_ACTIVATED, self.OnActivate)
+
+		self.Bind( wx.EVT_BUTTON, self.OnClose, id=xrc.XRCID('m_buttonClose') )
+		self.Bind( wx.EVT_BUTTON, self.OnHelp, id=xrc.XRCID('m_buttonHelp') )
+		self.Bind( wx.EVT_BUTTON, self.OnAdd, id=xrc.XRCID('m_buttonAdd') )
+		self.Bind( wx.EVT_BUTTON, self.OnRemove, id=xrc.XRCID('m_buttonRemove') )
+		self.Bind( wx.EVT_BUTTON, self.OnEdit, id=xrc.XRCID('m_buttonEdit') )
+		self.Bind( wx.EVT_BUTTON, self.OnExport, id=xrc.XRCID('m_buttonExport') )
+
+		if not os.path.isdir(magnetismHomePath):
+			os.mkdir(magnetismHomePath)
+
+		if not os.path.isdir(scriptsPath):
+			os.mkdir(scriptsPath)
+			self.scipts = []
+		else:
+			self.scripts = loadScripts(scriptsPath)
+		
+		self.listCtrlMain.InsertColumn(0, '')
+		
+		self.loadList()
+		
+		self.Center()
+		self.Show(True)
+
+	def loadList(self):
+		self.listCtrlMain.DeleteAllItems()
+		self.scripts.reverse()
+
+		self.il = wx.ImageList(32, 32)
+		for s in self.scripts:
+			self.il.Add( wx.Bitmap(s.icon) )
+
+		self.listCtrlMain.SetImageList(self.il, wx.IMAGE_LIST_SMALL)
+
+		for i, s in enumerate(self.scripts):
+			self.listCtrlMain.InsertStringItem(0, s.title)
+			self.listCtrlMain.SetItemImage(0, i)
+			s.listID = i
+
+		self.scripts.reverse()
+
+	def OnClose(self, event):
+		self.Close()
+
+	def OnHelp(self, event):
+		scriptools.dialogMessage(title="Scriptul", message="Help not implemented")
+
+	def OnAdd(self, event):
+		scriptools.dialogMessage(title="Scriptul", message="Add not implemented")
+
+	def OnRemove(self, event):
+		scriptools.dialogMessage(title="Scriptul", message="Remove not implemented")
+
+	def OnEdit(self, event):
+		scriptools.dialogMessage(title="Scriptul", message="Edit not implemented")
+
+	def OnExport(self, event):
+		scriptools.dialogMessage(title="Scriptul", message="Export not implemented")
+
+	def OnSize(self, event):
+		size = self.listCtrlMain.GetSize()
+		self.listCtrlMain.SetColumnWidth(0, size.x-5)
+		event.Skip()
+
+	def OnActivate(self, event):
+		script = self.scripts[ event.GetIndex() ]
+		script.run()
+
+
+if __name__ == "__main__":
+	app = wx.App()
+	frameMain = FrameMain(parent=None, id=-1, title='Scriptul')
+	app.MainLoop()
+
