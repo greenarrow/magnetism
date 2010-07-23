@@ -6,12 +6,13 @@ import wx.xrc as xrc
 import magnetism_core as magnetism
 import magnetism_core.scriptools as scriptools
 
-""" TODO
-* Add new / delete / order code
-* create home dir if not exist
-#uuid.uuid4()
-"""
 
+""" TODO
+* Add Add / Remove / Edit code
+	For new use: uuid.uuid4()
+* Fix large size of button choice dialog
+* Implement exporting to standalone script
+"""
 
 
 FILE_EXTENSION = "magnetism"
@@ -59,6 +60,8 @@ class FrameMain(wx.Dialog):
 		self.Bind( wx.EVT_BUTTON, self.OnEdit, id=xrc.XRCID('m_buttonEdit') )
 		self.Bind( wx.EVT_BUTTON, self.OnExport, id=xrc.XRCID('m_buttonExport') )
 
+		self.Bind(wx.EVT_CLOSE, self.OnCloseEvent)
+
 		if not os.path.isdir(magnetismHomePath):
 			os.mkdir(magnetismHomePath)
 
@@ -91,6 +94,9 @@ class FrameMain(wx.Dialog):
 			s.listID = i
 
 		self.scripts.reverse()
+
+	def OnCloseEvent(self, event):
+		self.Destroy()
 
 	def OnClose(self, event):
 		self.Close()
