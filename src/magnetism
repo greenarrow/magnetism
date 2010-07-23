@@ -40,9 +40,9 @@ def loadScripts(path):
 	return scripts
 
 
-class FrameMain(wx.Frame):
+class FrameMain(wx.Dialog):
 	def __init__(self, parent, id, title):
-		wx.Frame.__init__(self, parent, id, title)
+		wx.Dialog.__init__(self, parent, id, title)
 
 		res = xrc.XmlResource('magnetism.xrc')
 		self.panel = res.LoadPanel(self, 'PanelMain')
@@ -94,6 +94,7 @@ class FrameMain(wx.Frame):
 
 	def OnClose(self, event):
 		self.Close()
+		self.Destroy()
 
 	def OnHelp(self, event):
 		scriptools.dialogMessage(title="Scriptul", message="Help not implemented")
