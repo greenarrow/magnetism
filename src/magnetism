@@ -14,11 +14,11 @@ import magnetism_core.scriptools as scriptools
 
 
 
-FILE_EXTENSION = "scriptul"
+FILE_EXTENSION = "magnetism"
 MAGNETISM_HOME_DIR = ".magnetism"
 
 magnetismHomePath = os.path.join( os.path.expanduser("~"), MAGNETISM_HOME_DIR )
-scriptsPath = os.path.join(magnetismHomePath, "scripts"
+scriptsPath = os.path.join(magnetismHomePath, "scripts")
 
 
 def loadScripts(path):
