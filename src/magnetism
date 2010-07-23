@@ -1,0 +1,6 @@
+#!/usr/bin/env python
+
+import magnetism_core as magnetism
+import magnetism_core.scriptools as scriptools
+
+print "Main program placeholder"

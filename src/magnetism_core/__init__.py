@@ -1,0 +1,1 @@
+print "Library core placeholder"
