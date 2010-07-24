@@ -1,4 +1,5 @@
 import wx
+import images
 
 
 BUTTONS = 1
@@ -33,8 +34,15 @@ class ButtonChoiceDialog(wx.Dialog):
 		self.Close()
 
 
-def dialogMessage(title, message):
-	dlg = wx.MessageDialog(None, message, caption=title, style=wx.OK|wx.CENTRE )
+def setIcon(dialog):
+	icon = wx.EmptyIcon()
+	icon.CopyFromBitmap( images.getMagnet32Bitmap() )
+	dialog.SetIcon(icon)
+
+
+def dialogMessage(title, message, flags=0):
+	dlg = wx.MessageDialog(None, message, caption=title, style=wx.OK|wx.CENTRE|flags )
+	setIcon(dlg)
 	dlg.ShowModal()
 	dlg.Destroy()
 
@@ -42,12 +50,14 @@ def dialogMessage(title, message):
 def dialogChoice(title, question, choices, mode=BUTTONS):
 	if mode == BUTTONS:
 		dlg = ButtonChoiceDialog(None, -1, title, choices)
+		setIcon(dlg)
 		dlg.ShowModal()
 		value = dlg.GetStringSelection()
 		dlg.Destroy()
 		return value
 	elif mode == LIST:
 		dlg = wx.SingleChoiceDialog(None, question, title, choices, wx.CHOICEDLG_STYLE )
+		setIcon(dlg)
 		if dlg.ShowModal() == wx.ID_OK:
 			value = dlg.GetStringSelection()
 		else:
@@ -55,7 +65,7 @@ def dialogChoice(title, question, choices, mode=BUTTONS):
 		dlg.Destroy()
 		return value
 	else:
-		dialogMessage("Error", "Invalid mode for dialogChoice")
+		dialogMessage(title=magnetism.APP_NAME, message="Invalid mode for dialogChoice", flags=wx.ICON_ERROR)
 
 
 

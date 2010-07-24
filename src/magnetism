@@ -18,9 +18,6 @@ import magnetism_core.scriptools as scriptools
 """
 
 
-
-
-
 def loadScripts(path):
 	scripts = []
 
@@ -35,7 +32,7 @@ def loadScripts(path):
 
 	if len(errors):
 		msg = "Errors were encountered loading the following files:\n\n" + "\n".join(errors)
-		dialogMessage(title="Scriptul", message=msg)
+		scriptools.dialogMessage(title=magnetism.APP_NAME, message=msg, flags=wx.ICON_ERROR)
 
 	return scripts
 
@@ -110,19 +107,19 @@ class DialogMain(wx.Dialog):
 		self.Destroy()
 
 	def OnHelp(self, event):
-		scriptools.dialogMessage(title="Scriptul", message="Help not implemented")
+		scriptools.dialogMessage(title=magnetism.APP_NAME, message="Help not implemented")
 
 	def OnAdd(self, event):
-		scriptools.dialogMessage(title="Scriptul", message="Add not implemented")
+		scriptools.dialogMessage(title=magnetism.APP_NAME, message="Add not implemented")
 
 	def OnRemove(self, event):
-		scriptools.dialogMessage(title="Scriptul", message="Remove not implemented")
+		scriptools.dialogMessage(title=magnetism.APP_NAME, message="Remove not implemented")
 
 	def OnEdit(self, event):
-		scriptools.dialogMessage(title="Scriptul", message="Edit not implemented")
+		scriptools.dialogMessage(title=magnetism.APP_NAME, message="Edit not implemented")
 
 	def OnExport(self, event):
-		scriptools.dialogMessage(title="Scriptul", message="Export not implemented")
+		scriptools.dialogMessage(title=magnetism.APP_NAME, message="Export not implemented")
 
 	def OnSize(self, event):
 		size = self.listCtrlMain.GetSize()

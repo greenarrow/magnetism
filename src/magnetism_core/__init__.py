@@ -4,7 +4,7 @@ import scriptools, images
 
 FILE_EXTENSION = "magnetism"
 MAGNETISM_HOME_DIR = ".magnetism"
-
+APP_NAME = "Magnetism"
 
 magnetismHomePath = os.path.join( os.path.expanduser("~"), MAGNETISM_HOME_DIR )
 scriptsPath = os.path.join(magnetismHomePath, "scripts")
@@ -56,6 +56,6 @@ class Script():
 			exec self.code
 		except:
 			msg = "There was an error running the script:\n\n" + traceback.format_exc()
-			scriptools.dialogMessage(title="Scriptul", message=msg)
+			scriptools.dialogMessage(title="Scriptul", message=msg, flags=wx.ICON_ERROR)
 
 
