@@ -5,7 +5,7 @@ This is a way to save the startup time when running img2py on lots of
 files...
 """
 
-import sys
+import os, sys
 from wx.tools import img2py
 
 
@@ -16,10 +16,18 @@ command_lines = [
 ]
 
 
-def main():
+def main(buildRoot=False):
+	if buildRoot:
+		path = os.getcwd()
+		os.chdir(buildRoot)
+
+	print "building resource file images.py"
 	for line in command_lines:
 		args = line.split()
 		img2py.main(args)
+
+	if buildRoot:
+		os.chdir(path)
 
 
 if __name__ == "__main__":
