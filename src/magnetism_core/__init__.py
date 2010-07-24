@@ -32,7 +32,6 @@ class Script():
 			elif l.startswith("ICON"):
 				value = lines[i + 1].strip()
 				filename = os.path.join(iconsPath, value)
-				print filename, os.path.isfile(filename)
 
 				if len(value) and os.path.isfile(filename):
 					self.iconFile = filename
