@@ -4,6 +4,8 @@ import os, glob, wx, traceback
 import wx.xrc as xrc
 
 import magnetism_core as magnetism
+import magnetism_core.images as images
+import magnetism_core.xrcdata as xrcdata
 import magnetism_core.scriptools as scriptools
 
 
@@ -12,21 +14,18 @@ import magnetism_core.scriptools as scriptools
 	For new use: uuid.uuid4()
 * Fix large size of button choice dialog
 * Implement exporting to standalone script
+* In editor choose icon / import new image
 """
 
 
-FILE_EXTENSION = "magnetism"
-MAGNETISM_HOME_DIR = ".magnetism"
 
-magnetismHomePath = os.path.join( os.path.expanduser("~"), MAGNETISM_HOME_DIR )
-scriptsPath = os.path.join(magnetismHomePath, "scripts")
 
 
 def loadScripts(path):
 	scripts = []
 
 	errors = []
-	for f in glob.glob( os.path.join(path, "*.%s" % FILE_EXTENSION) ):
+	for f in glob.glob( os.path.join(path, "*.%s" % magnetism.FILE_EXTENSION) ):
 		try:
 			s = magnetism.Script(filename=f)
 		except magnetism.ScriptulFileError:
@@ -41,11 +40,12 @@ def loadScripts(path):
 	return scripts
 
 
-class FrameMain(wx.Dialog):
+class DialogMain(wx.Dialog):
 	def __init__(self, parent, id, title):
 		wx.Dialog.__init__(self, parent, id, title)
 
-		res = xrc.XmlResource('magnetism.xrc')
+		res = xrc.EmptyXmlResource()
+		res.LoadFromString(xrcdata.xml)
 		self.panel = res.LoadPanel(self, 'PanelMain')
 
 		self.listCtrlMain = xrc.XRCCTRL(self.panel, 'listCtrlMain')
@@ -62,20 +62,25 @@ class FrameMain(wx.Dialog):
 
 		self.Bind(wx.EVT_CLOSE, self.OnCloseEvent)
 
-		if not os.path.isdir(magnetismHomePath):
-			os.mkdir(magnetismHomePath)
+		if not os.path.isdir(magnetism.magnetismHomePath):
+			os.mkdir(magnetism.magnetismHomePath)
 
-		if not os.path.isdir(scriptsPath):
-			os.mkdir(scriptsPath)
+		if not os.path.isdir(magnetism.scriptsPath):
+			os.mkdir(magnetism.scriptsPath)
 			self.scipts = []
 		else:
-			self.scripts = loadScripts(scriptsPath)
-		
+			self.scripts = loadScripts(magnetism.scriptsPath)
+
 		self.listCtrlMain.InsertColumn(0, '')
-		
+
 		self.loadList()
 		
 		self.Center()
+
+		icon = wx.EmptyIcon()
+		icon.CopyFromBitmap( images.getMagnet32Bitmap() )
+		self.SetIcon(icon)
+
 		self.Show(True)
 
 	def loadList(self):
@@ -84,7 +89,9 @@ class FrameMain(wx.Dialog):
 
 		self.il = wx.ImageList(32, 32)
 		for s in self.scripts:
-			self.il.Add( wx.Bitmap(s.icon) )
+			if s.getBitmap() == None:
+				s.loadBitmap()
+			self.il.Add( s.getBitmap() )
 
 		self.listCtrlMain.SetImageList(self.il, wx.IMAGE_LIST_SMALL)
 
@@ -129,6 +136,6 @@ class FrameMain(wx.Dialog):
 
 if __name__ == "__main__":
 	app = wx.App()
-	frameMain = FrameMain(parent=None, id=-1, title='Scriptul')
+	dialogMain = DialogMain(parent=None, id=-1, title='Magnetism')
 	app.MainLoop()
 
