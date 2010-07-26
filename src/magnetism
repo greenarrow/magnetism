@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 
-import os, glob, wx, traceback
+import os, glob, wx, traceback, keyword
 import wx.xrc as xrc
+import wx.stc as stc
 
 import magnetism_core as magnetism
 import magnetism_core.images as images
@@ -35,6 +36,131 @@ def loadScripts(path):
 		scriptools.dialogMessage(title=magnetism.APP_NAME, message=msg, flags=wx.ICON_ERROR)
 
 	return scripts
+
+
+class PythonEditor(stc.StyledTextCtrl):
+	faces = { 'times': 'Times',
+	'mono' : 'Monospace',
+	'helv' : 'Helvetica',
+	'other': 'new century schoolbook',
+	'size' : 10,
+	'size2': 8,
+	}
+
+	def __init__(self, parent, style=0):
+		stc.StyledTextCtrl.__init__(self, parent, style=style)
+		self.setStyle()
+		self.Bind(stc.EVT_STC_MARGINCLICK, self.OnMarginClick)
+
+	def setStyle(self):
+		# Almost all of this function is borrored from the wxPython documentation
+
+		self._styles = [None] * 32
+		self._free = 1
+
+		self.SetLexer(stc.STC_LEX_PYTHON)
+		self.SetKeyWords(0, " ".join(keyword.kwlist))
+
+		self.SetProperty("fold", "1")
+		self.SetProperty("tab.timmy.whinge.level", "1")
+
+		self.SetViewWhiteSpace(False)
+
+		self.SetMarginType(2, stc.STC_MARGIN_SYMBOL)
+		self.SetMarginMask(2, stc.STC_MASK_FOLDERS)
+		self.SetMarginSensitive(2, True)
+		self.SetMarginWidth(2, 12)
+
+		# Like a flattened tree control using square headers
+		self.MarkerDefine(stc.STC_MARKNUM_FOLDEROPEN, stc.STC_MARK_BOXMINUS, "white", "#808080")
+		self.MarkerDefine(stc.STC_MARKNUM_FOLDER, stc.STC_MARK_BOXPLUS, "white", "#808080")
+		self.MarkerDefine(stc.STC_MARKNUM_FOLDERSUB, stc.STC_MARK_VLINE, "white", "#808080")
+		self.MarkerDefine(stc.STC_MARKNUM_FOLDERTAIL, stc.STC_MARK_LCORNER, "white", "#808080")
+		self.MarkerDefine(stc.STC_MARKNUM_FOLDEREND, stc.STC_MARK_BOXPLUSCONNECTED, "white", "#808080")
+		self.MarkerDefine(stc.STC_MARKNUM_FOLDEROPENMID, stc.STC_MARK_BOXMINUSCONNECTED, "white", "#808080")
+		self.MarkerDefine(stc.STC_MARKNUM_FOLDERMIDTAIL, stc.STC_MARK_TCORNER, "white", "#808080")
+
+		# Make some styles, The lexer defines what each style is used for, we
+		# just have to define what each style looks like. This set is adapted from
+		# Scintilla sample property files.
+
+		# Global default styles for all languages
+		self.StyleSetSpec(stc.STC_STYLE_DEFAULT, "face:%(mono)s,size:%(size)d" % self.faces)
+		self.StyleClearAll() # Reset all to be like the default
+
+		# Global default styles for all languages
+		self.StyleSetSpec(stc.STC_STYLE_DEFAULT, "face:%(mono)s,size:%(size)d" % self.faces)
+		self.StyleSetSpec(stc.STC_STYLE_LINENUMBER, "back:#C0C0C0,face:%(mono)s,size:%(size2)d" % self.faces)
+		self.StyleSetSpec(stc.STC_STYLE_CONTROLCHAR, "face:%(other)s" % self.faces)
+		self.StyleSetSpec(stc.STC_STYLE_BRACELIGHT, "fore:#FFFFFF,back:#0000FF,bold")
+		self.StyleSetSpec(stc.STC_STYLE_BRACEBAD, "fore:#000000,back:#FF0000,bold")
+
+		# Python styles
+		# Default
+		self.StyleSetSpec(stc.STC_P_DEFAULT, "fore:#000000,face:%(mono)s,size:%(size)d" % self.faces)
+		# Comments
+		self.StyleSetSpec(stc.STC_P_COMMENTLINE, "fore:#007F00,face:%(other)s,size:%(size)d" % self.faces)
+		# Number
+		self.StyleSetSpec(stc.STC_P_NUMBER, "fore:#007F7F,size:%(size)d" % self.faces)
+		# String
+		self.StyleSetSpec(stc.STC_P_STRING, "fore:#7F007F,face:%(mono)s,size:%(size)d" % self.faces)
+		# Single quoted string
+		self.StyleSetSpec(stc.STC_P_CHARACTER, "fore:#7F007F,face:%(mono)s,size:%(size)d" % self.faces)
+		# Keyword
+		self.StyleSetSpec(stc.STC_P_WORD, "fore:#00007F,bold,size:%(size)d" % self.faces)
+		# Triple quotes
+		self.StyleSetSpec(stc.STC_P_TRIPLE, "fore:#7F0000,size:%(size)d" % self.faces)
+		# Triple double quotes
+		self.StyleSetSpec(stc.STC_P_TRIPLEDOUBLE, "fore:#7F0000,size:%(size)d" % self.faces)
+		# Class name definition
+		self.StyleSetSpec(stc.STC_P_CLASSNAME, "fore:#0000FF,bold,underline,size:%(size)d" % self.faces)
+		# Function or method name definition
+		self.StyleSetSpec(stc.STC_P_DEFNAME, "fore:#007F7F,bold,size:%(size)d" % self.faces)
+		# Operators
+		self.StyleSetSpec(stc.STC_P_OPERATOR, "bold,size:%(size)d" % self.faces)
+		# Identifiers
+		self.StyleSetSpec(stc.STC_P_IDENTIFIER, "fore:#000000,face:%(mono)s,size:%(size)d" % self.faces)
+		# Comment-blocks
+		self.StyleSetSpec(stc.STC_P_COMMENTBLOCK, "fore:#7F7F7F,size:%(size)d" % self.faces)
+		# End of line where string is not closed
+		self.StyleSetSpec(stc.STC_P_STRINGEOL, "fore:#000000,face:%(mono)s,back:#E0C0E0,eol,size:%(size)d" % self.faces)
+
+		self.SetCaretForeground("BLUE")
+
+	def OnMarginClick(self, evt):
+		# Fold or unfold code
+		if evt.GetMargin() == 2:
+			lineClicked = self.LineFromPosition( evt.GetPosition() )
+		if self.GetFoldLevel(lineClicked) & stc.STC_FOLDLEVELHEADERFLAG:
+			self.ToggleFold(lineClicked)
+
+	def write(self, text):
+		self.SetText(text)
+		self.EmptyUndoBuffer()
+
+	def read(self):
+		return self.GetText()
+
+
+class FrameEditor(wx.Frame):
+	def __init__(self, parent, id, title):
+		wx.Frame.__init__(self, parent, id, title)
+
+		panel = wx.Panel(self)
+		self.editor = PythonEditor(panel)
+
+		psizer = wx.BoxSizer(wx.VERTICAL)
+		psizer.Add(self.editor, proportion=1, flag=wx.EXPAND|wx.ALL, border=5)
+		panel.SetSizer(psizer)
+
+		fsizer = wx.BoxSizer(wx.VERTICAL)
+		fsizer.Add(panel, proportion=1, flag=wx.EXPAND|wx.ALL, border=5)
+
+		self.SetSizer(fsizer)
+
+		icon = wx.EmptyIcon()
+		icon.CopyFromBitmap( images.getMagnet32Bitmap() )
+		self.SetIcon(icon)
 
 
 class DialogMain(wx.Dialog):
@@ -80,6 +206,7 @@ class DialogMain(wx.Dialog):
 
 		self.Show(True)
 
+
 	def loadList(self):
 		self.listCtrlMain.DeleteAllItems()
 		self.scripts.reverse()
@@ -116,7 +243,11 @@ class DialogMain(wx.Dialog):
 		scriptools.dialogMessage(title=magnetism.APP_NAME, message="Remove not implemented")
 
 	def OnEdit(self, event):
-		scriptools.dialogMessage(title=magnetism.APP_NAME, message="Edit not implemented")
+		#scriptools.dialogMessage(title=magnetism.APP_NAME, message="Edit not implemented")
+		frame = FrameEditor(parent=None, id=-1, title=magnetism.APP_NAME)
+		# bad
+		frame.editor.write("test")
+		frame.Show()
 
 	def OnExport(self, event):
 		scriptools.dialogMessage(title=magnetism.APP_NAME, message="Export not implemented")
@@ -133,6 +264,6 @@ class DialogMain(wx.Dialog):
 
 if __name__ == "__main__":
 	app = wx.App()
-	dialogMain = DialogMain(parent=None, id=-1, title='Magnetism')
+	dialogMain = DialogMain(parent=None, id=-1, title=magnetism.APP_NAME)
 	app.MainLoop()
 
