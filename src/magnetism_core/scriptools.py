@@ -40,14 +40,14 @@ def setIcon(dialog):
 	dialog.SetIcon(icon)
 
 
-def dialogMessage(title, message, flags=0):
+def dialogMessage(message, title="", flags=0):
 	dlg = wx.MessageDialog(None, message, caption=title, style=wx.OK|wx.CENTRE|flags )
 	setIcon(dlg)
 	dlg.ShowModal()
 	dlg.Destroy()
 
 
-def dialogChoice(title, question, choices, mode=BUTTONS):
+def dialogChoice(choices, title="", question="", mode=BUTTONS):
 	if mode == BUTTONS:
 		dlg = ButtonChoiceDialog(None, -1, title, choices)
 		setIcon(dlg)
@@ -66,6 +66,20 @@ def dialogChoice(title, question, choices, mode=BUTTONS):
 		return value
 	else:
 		dialogMessage(title=magnetism.APP_NAME, message="Invalid mode for dialogChoice", flags=wx.ICON_ERROR)
+
+
+def dialogTextEntry(title="", question="", value=""):
+	dlg = wx.TextEntryDialog(None, question, title, 'Python')
+	setIcon(dlg)
+	dlg.SetValue(value)
+
+	if dlg.ShowModal() == wx.ID_OK:
+		value = dlg.GetValue()
+	else:
+		value = None
+
+	dlg.Destroy()
+	return value
 
 
 
