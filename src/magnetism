@@ -62,22 +62,20 @@ class DialogMain(wx.Dialog):
 		if not os.path.isdir(magnetism.magnetismHomePath):
 			os.mkdir(magnetism.magnetismHomePath)
 
+		self.listCtrlMain.InsertColumn(0, '')
+
 		if not os.path.isdir(magnetism.scriptsPath):
 			os.mkdir(magnetism.scriptsPath)
 			self.scipts = []
 		else:
 			self.scripts = loadScripts(magnetism.scriptsPath)
-
-		self.listCtrlMain.InsertColumn(0, '')
-
-		self.loadList()
-		
-		self.Center()
+			self.loadList()
 
 		icon = wx.EmptyIcon()
 		icon.CopyFromBitmap( images.getMagnet32Bitmap() )
 		self.SetIcon(icon)
 
+		self.Center()
 		self.Show(True)
 
 	def loadList(self):
