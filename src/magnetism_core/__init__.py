@@ -39,7 +39,7 @@ class Script():
 					self.bitmap = images.getCogsBitmap()
 
 			elif l.startswith("CODE"):
-				self.code = "import magnetism_core.scriptools as magnetism\n" + "\n".join( lines[ i + 1: ] )
+				self.code = "".join( lines[ i + 1: ] )
 				break
 
 		if self.title == None or self.code == None:
@@ -53,9 +53,16 @@ class Script():
 
 	def run(self):
 		try:
-			exec self.code
+			exec "import magnetism_core.scriptools as magnetism\n" + self.code
 		except:
 			msg = "There was an error running the script:\n\n" + traceback.format_exc()
 			scriptools.dialogMessage(title="Scriptul", message=msg, flags=wx.ICON_ERROR)
+
+	def getExported(self):
+		print "TODO: we need to look to see if script is using dialogs and create a [invisible] wx environment if so"
+		return "#!/usr/bin/env python\nimport magnetism_core.scriptools as magnetism\n" + self.code
+
+
+
 
 
