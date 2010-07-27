@@ -119,7 +119,20 @@ class DialogMain(wx.Dialog):
 		scriptools.dialogMessage(title=magnetism.APP_NAME, message="Edit not implemented")
 
 	def OnExport(self, event):
-		scriptools.dialogMessage(title=magnetism.APP_NAME, message="Export not implemented")
+		index = self.listCtrlMain.GetFirstSelected()
+		if index >= 0:
+			script = self.scripts[index]
+
+			filters = 'Python scripts (*.py)|*.py|All files (*.*)|*.*'
+			dlg = wx.FileDialog(self, style=wx.SAVE, wildcard=filters)
+			if dlg.ShowModal() == wx.ID_OK:
+				filename = dlg.GetPath()
+				path, name = os.path.split(filename)
+				if os.path.isdir(path):
+					open(filename, "w").write( script.getExported() )
+					scriptools.dialogMessage(title=magnetism.APP_NAME, message="Script exported to %s" % filename)
+
+			dlg.Destroy()
 
 	def OnSize(self, event):
 		size = self.listCtrlMain.GetSize()
