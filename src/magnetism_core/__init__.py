@@ -20,6 +20,7 @@ class Script():
 	iconFile = None
 	bitmap = None
 	code = None
+	debug = False
 
 	def __init__(self, filename):
 		null, self.filename = os.path.split(filename)
@@ -39,7 +40,8 @@ class Script():
 					self.bitmap = images.getCogsBitmap()
 
 			elif l.startswith("CODE"):
-				self.code = "import magnetism_core.scriptools as magnetism\n" + "\n".join( lines[ i + 1: ] )
+				self.code = "import magnetism_core.scriptools as magnetism\nscript = magnetism.ScriptMetaData(title=\"%s\")\n" % self.title
+				self.code += "".join( lines[ i + 1: ] )
 				break
 
 		if self.title == None or self.code == None:
@@ -53,9 +55,14 @@ class Script():
 
 	def run(self):
 		try:
+			if self.debug:
+				print "DEBUG: Executing code"
+				print self.code
 			exec self.code
 		except:
 			msg = "There was an error running the script:\n\n" + traceback.format_exc()
 			scriptools.dialogMessage(title="Scriptul", message=msg, flags=wx.ICON_ERROR)
+
+
 
 

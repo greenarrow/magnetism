@@ -6,6 +6,11 @@ BUTTONS = 1
 LIST = 2
 
 
+class ScriptMetaData(object):
+	def __init__(self, title):
+		self.title = title
+
+
 class ButtonChoiceDialog(wx.Dialog):
 	def __init__(self, parent, id, title, choices):
 		wx.Dialog.__init__(self, parent, id, title)
