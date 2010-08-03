@@ -84,6 +84,7 @@ class PythonEditor(stc.StyledTextCtrl):
 		# just have to define what each style looks like. This set is adapted from
 		# Scintilla sample property files.
 
+		# TODO make hightlighting the same as gedit (inspect the colours)
 		# Global default styles for all languages
 		self.StyleSetSpec(stc.STC_STYLE_DEFAULT, "face:%(mono)s,size:%(size)d" % self.faces)
 		self.StyleClearAll() # Reset all to be like the default
@@ -146,21 +147,67 @@ class FrameEditor(wx.Frame):
 	def __init__(self, parent, id, title):
 		wx.Frame.__init__(self, parent, id, title)
 
+		vbox = wx.BoxSizer(wx.VERTICAL)
+
+		toolbar = wx.ToolBar(self, -1, style=wx.TB_HORIZONTAL | wx.NO_BORDER) 
+		toolbar.AddSimpleTool( id=wx.ID_SAVE, bitmap=wx.ArtProvider.GetBitmap(wx.ART_FILE_SAVE) )
+		toolbar.AddSeparator()
+		toolbar.AddSimpleTool( id=wx.ID_CUT, bitmap=wx.ArtProvider.GetBitmap(wx.ART_CUT) )
+		toolbar.AddSimpleTool( id=wx.ID_COPY, bitmap=wx.ArtProvider.GetBitmap(wx.ART_COPY) )
+		toolbar.AddSimpleTool( id=wx.ID_PASTE, bitmap=wx.ArtProvider.GetBitmap(wx.ART_PASTE) )
+		toolbar.AddSeparator()
+		toolbar.AddSimpleTool( id=wx.ID_UNDO, bitmap=wx.ArtProvider.GetBitmap(wx.ART_UNDO) )
+		toolbar.AddSimpleTool( id=wx.ID_REDO, bitmap=wx.ArtProvider.GetBitmap(wx.ART_REDO) )
+		toolbar.Realize()
+
+		vbox.Add(toolbar, 0, border=5)
+
+		pvbox = wx.BoxSizer(wx.VERTICAL)
 		panel = wx.Panel(self)
 		self.editor = PythonEditor(panel)
+		pvbox.Add(self.editor, proportion=1, flag=wx.EXPAND|wx.ALL, border=5)
+		panel.SetSizer(pvbox)
+		vbox.Add(panel, proportion=1, flag=wx.EXPAND|wx.ALL, border=5)
 
-		psizer = wx.BoxSizer(wx.VERTICAL)
-		psizer.Add(self.editor, proportion=1, flag=wx.EXPAND|wx.ALL, border=5)
-		panel.SetSizer(psizer)
+		self.SetSizer(vbox)
+		self.Centre()
 
-		fsizer = wx.BoxSizer(wx.VERTICAL)
-		fsizer.Add(panel, proportion=1, flag=wx.EXPAND|wx.ALL, border=5)
-
-		self.SetSizer(fsizer)
+		self.Bind(wx.EVT_TOOL, self.OnSave, id=wx.ID_SAVE)
+		self.Bind(wx.EVT_TOOL, self.OnCut, id=wx.ID_CUT)
+		self.Bind(wx.EVT_TOOL, self.OnCopy, id=wx.ID_COPY)
+		self.Bind(wx.EVT_TOOL, self.OnPaste, id=wx.ID_PASTE)
+		self.Bind(wx.EVT_TOOL, self.OnUndo, id=wx.ID_UNDO)
+		self.Bind(wx.EVT_TOOL, self.OnRedo, id=wx.ID_REDO)
+		self.Bind(wx.EVT_CLOSE, self.OnCloseEvent)
 
 		icon = wx.EmptyIcon()
 		icon.CopyFromBitmap( images.getMagnet32Bitmap() )
 		self.SetIcon(icon)
+
+	def OnSave(self, event):
+		scriptools.dialogMessage(title=magnetism.APP_NAME, message="Save not implemented")
+
+	def OnCut(self, event):
+		scriptools.dialogMessage(title=magnetism.APP_NAME, message="Cut not implemented")
+
+	def OnCopy(self, event):
+		scriptools.dialogMessage(title=magnetism.APP_NAME, message="Copy not implemented")
+
+	def OnPaste(self, event):
+		scriptools.dialogMessage(title=magnetism.APP_NAME, message="Paste not implemented")
+
+	def OnUndo(self, event):
+		scriptools.dialogMessage(title=magnetism.APP_NAME, message="Undo not implemented")
+
+	def OnRedo(self, event):
+		scriptools.dialogMessage(title=magnetism.APP_NAME, message="Redo not implemented")
+
+	def OnCloseEvent(self, event):
+		# TODO confirm if not saved
+		self.Destroy()
+
+	def setEditorText(self, text):
+		self.editor.write(text)
 
 
 class DialogMain(wx.Dialog):
@@ -241,11 +288,14 @@ class DialogMain(wx.Dialog):
 		scriptools.dialogMessage(title=magnetism.APP_NAME, message="Remove not implemented")
 
 	def OnEdit(self, event):
-		#scriptools.dialogMessage(title=magnetism.APP_NAME, message="Edit not implemented")
-		frame = FrameEditor(parent=None, id=-1, title=magnetism.APP_NAME)
-		# bad
-		frame.editor.write("test")
-		frame.Show()
+		index = self.listCtrlMain.GetFirstSelected()
+		if index >= 0:
+			script = self.scripts[index]
+
+			frame = FrameEditor(parent=None, id=-1, title=magnetism.APP_NAME)
+
+			frame.setEditorText(script.code)
+			frame.Show()
 
 	def OnExport(self, event):
 		index = self.listCtrlMain.GetFirstSelected()
