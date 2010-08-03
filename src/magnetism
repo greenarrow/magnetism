@@ -210,9 +210,9 @@ class FrameEditor(wx.Frame):
 		self.editor.write(text)
 
 
-class DialogMain(wx.Dialog):
+class FrameMain(wx.Frame):
 	def __init__(self, parent, id, title):
-		wx.Dialog.__init__(self, parent, id, title)
+		wx.Frame.__init__(self, parent, id, title)
 
 		res = xrc.EmptyXmlResource()
 		res.LoadFromString(xrcdata.xml)
@@ -325,6 +325,6 @@ class DialogMain(wx.Dialog):
 
 if __name__ == "__main__":
 	app = wx.App()
-	dialogMain = DialogMain(parent=None, id=-1, title=magnetism.APP_NAME)
+	frameMain = FrameMain(parent=None, id=-1, title=magnetism.APP_NAME)
 	app.MainLoop()
 
