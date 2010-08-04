@@ -1,0 +1,21 @@
+h3. Introduction
+
+Magnetism is an easy to use environment for writing and running simple useful scripts to do useful things on your desktop.
+
+Magnetism is written in Python and so are script you write in it.
+
+Things I use Magnetism for:
+*At Home*
+
+* Starting and stopping Android port forwarding (tethering)
+* Switching xrandr modes (switch netbook external monitor)
+
+*At Work*
+
+* Converting between Windows and Linux network paths
+
+h3. Install
+
+$ python setup.py build
+$ sudo python setup.py install
+
