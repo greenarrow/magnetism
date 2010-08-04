@@ -4,7 +4,8 @@ Magnetism is an easy to use environment for writing and running simple useful sc
 
 Magnetism is written in Python and so are script you write in it.
 
-Things I use Magnetism for:
+h3. Things I Use Magnetism For
+
 *At Home*
 
 * Starting and stopping Android port forwarding (tethering)
@@ -16,6 +17,8 @@ Things I use Magnetism for:
 
 h3. Install
 
+<pre>
 $ python setup.py build
 $ sudo python setup.py install
+</pre>
 
