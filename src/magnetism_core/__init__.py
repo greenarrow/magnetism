@@ -52,10 +52,11 @@ class Script():
 
 	def run(self):
 		try:
+			code = "import magnetism_core.scriptools as magnetism\nscript = magnetism.ScriptMetaData(title=\"%s\")\n%s" % (self.title, self.code)
 			if self.debug:
-				print "DEBUG: Executing code"
-				print self.code
-			exec "import magnetism_core.scriptools as magnetism\n" + self.code
+				print "DEBUG: Executing code:"
+				print code
+			exec code
 		except:
 			msg = "There was an error running the script:\n\n" + traceback.format_exc()
 			scriptools.dialogMessage(title="Scriptul", message=msg, flags=wx.ICON_ERROR)
