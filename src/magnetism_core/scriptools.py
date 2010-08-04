@@ -12,6 +12,8 @@ class ScriptMetaData(object):
 
 
 class ButtonChoiceDialog(wx.Dialog):
+	result = None
+
 	def __init__(self, parent, id, title, choices):
 		wx.Dialog.__init__(self, parent, id, title)
 

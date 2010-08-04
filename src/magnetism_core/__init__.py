@@ -17,13 +17,14 @@ class ScriptulFileError(Exception):
 
 class Script():
 	title = None
+	filename = None
 	iconFile = None
 	bitmap = None
 	code = None
 	debug = False
 
 	def __init__(self, filename):
-		null, self.filename = os.path.split(filename)
+		self.filename = filename
 		lines = open(filename, "r").readlines()
 
 		for i, l in enumerate(lines):
@@ -31,17 +32,13 @@ class Script():
 				self.title = lines[i + 1].strip()
 
 			elif l.startswith("ICON"):
-				value = lines[i + 1].strip()
-				filename = os.path.join(iconsPath, value)
+				self.iconFile = lines[i + 1].strip()
 
-				if len(value) and os.path.isfile(filename):
-					self.iconFile = filename
-				else:
+				if len(self.iconFile) == 0 or not os.path.isfile( os.path.join(iconsPath, self.iconFile) ):
 					self.bitmap = images.getCogsBitmap()
 
 			elif l.startswith("CODE"):
-				self.code = "import magnetism_core.scriptools as magnetism\nscript = magnetism.ScriptMetaData(title=\"%s\")\n" % self.title
-				self.code += "".join( lines[ i + 1: ] )
+				self.code = "".join( lines[ i + 1: ] )
 				break
 
 		if self.title == None or self.code == None:
@@ -51,17 +48,34 @@ class Script():
 		return self.bitmap
 
 	def loadBitmap(self):
-		self.bitmap = wx.Bitmap(self.iconFile)
+		self.bitmap = wx.Bitmap( os.path.join(iconsPath, self.iconFile) )
 
 	def run(self):
 		try:
 			if self.debug:
 				print "DEBUG: Executing code"
 				print self.code
-			exec self.code
+			exec "import magnetism_core.scriptools as magnetism\n" + self.code
 		except:
 			msg = "There was an error running the script:\n\n" + traceback.format_exc()
 			scriptools.dialogMessage(title="Scriptul", message=msg, flags=wx.ICON_ERROR)
+
+	def getExported(self):
+		print "TODO: we need to look to see if script is using dialogs and create a [invisible] wx environment if so"
+		return "#!/usr/bin/env python\nimport magnetism_core.scriptools as magnetism\n" + self.code
+
+	def getCode(self):
+		return self.code
+
+	def setCode(self, code):
+		self.code = code
+
+	def save(self):
+		text = "TITLE\n%s\nICON\n%s\nCODE\n%s" % (self.title, self.iconFile, self.code)
+		f = open(self.filename, "w")
+		f.write(text)
+		f.close()
+
 
 
 
