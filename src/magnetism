@@ -185,7 +185,9 @@ class FrameEditor(wx.Frame):
 		self.SetIcon(icon)
 
 	def OnSave(self, event):
-		scriptools.dialogMessage(title=magnetism.APP_NAME, message="Save not implemented")
+		self.activeScript.setCode( self.editor.read() )
+		self.activeScript.save()
+		scriptools.dialogMessage(title=magnetism.APP_NAME, message="File saved")
 
 	def OnCut(self, event):
 		scriptools.dialogMessage(title=magnetism.APP_NAME, message="Cut not implemented")
@@ -204,10 +206,12 @@ class FrameEditor(wx.Frame):
 
 	def OnCloseEvent(self, event):
 		# TODO confirm if not saved
+		self.activeScript = None
 		self.Destroy()
 
-	def setEditorText(self, text):
-		self.editor.write(text)
+	def setScript(self, script):
+		self.activeScript = script
+		self.editor.write( script.getCode() )
 
 
 class FrameMain(wx.Frame):
@@ -294,10 +298,14 @@ class FrameMain(wx.Frame):
 
 			frame = FrameEditor(parent=None, id=-1, title=magnetism.APP_NAME)
 
-			frame.setEditorText(script.code)
+			frame.setScript(script)
 			frame.Show()
 
 	def OnExport(self, event):
+		scriptools.dialogMessage(title=magnetism.APP_NAME, message="Export not implemented")
+		# Break until export code is fully usable
+		return
+		
 		index = self.listCtrlMain.GetFirstSelected()
 		if index >= 0:
 			script = self.scripts[index]

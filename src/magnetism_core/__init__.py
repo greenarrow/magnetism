@@ -17,12 +17,13 @@ class ScriptulFileError(Exception):
 
 class Script():
 	title = None
+	filename = None
 	iconFile = None
 	bitmap = None
 	code = None
 
 	def __init__(self, filename):
-		null, self.filename = os.path.split(filename)
+		self.filename = filename
 		lines = open(filename, "r").readlines()
 
 		for i, l in enumerate(lines):
@@ -30,12 +31,9 @@ class Script():
 				self.title = lines[i + 1].strip()
 
 			elif l.startswith("ICON"):
-				value = lines[i + 1].strip()
-				filename = os.path.join(iconsPath, value)
+				self.iconFile = lines[i + 1].strip()
 
-				if len(value) and os.path.isfile(filename):
-					self.iconFile = filename
-				else:
+				if len(self.iconFile) == 0:
 					self.bitmap = images.getCogsBitmap()
 
 			elif l.startswith("CODE"):
@@ -49,7 +47,7 @@ class Script():
 		return self.bitmap
 
 	def loadBitmap(self):
-		self.bitmap = wx.Bitmap(self.iconFile)
+		self.bitmap = wx.Bitmap( os.path.join(iconsPath, self.iconFile) )
 
 	def run(self):
 		try:
@@ -62,7 +60,17 @@ class Script():
 		print "TODO: we need to look to see if script is using dialogs and create a [invisible] wx environment if so"
 		return "#!/usr/bin/env python\nimport magnetism_core.scriptools as magnetism\n" + self.code
 
+	def getCode(self):
+		return self.code
 
+	def setCode(self, code):
+		self.code = code
+
+	def save(self):
+		text = "TITLE\n%s\nICON\n%s\nCODE\n%s" % (self.title, self.iconFile, self.code)
+		f = open(self.filename, "w")
+		f.write(text)
+		f.close()
 
 
 
